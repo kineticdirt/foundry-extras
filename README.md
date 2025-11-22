@@ -44,10 +44,12 @@ To install this module manually:
 
 ### Features
 
-1. Allows for quick importation of songs into FVTT
-2. Only adds songs that haven't been added already (can be disabled) . NOTE: This applies only for songs added by Playlist-importer 
-3. Delete imported playlist
-4. Build playlist by following the hiearchy of folder or one paylist fr every folder
+1. **Playlist Importer**: Allows for quick importation of songs into FVTT.
+2. **Sound Linker**: Drag playlists onto the canvas to create Ambient Sounds that automatically cycle through the playlist's tracks.
+3. **Compendium Builder**: A UI tool to easily create Classes, Backgrounds, and Proficiencies (Feats) for D&D 5e.
+4. **Clothing System**: A dedicated interface for managing character clothing slots (Head, Chest, Hips, etc.), accessible via the Actor Sheet or Token HUD.
+5. **Duplicate Checking**: Only adds songs that haven't been added already (can be disabled).
+6. **Playlist Management**: Delete imported playlists or build them following folder hierarchy.
 
 ### It's a feature not a bug!
 
@@ -55,11 +57,11 @@ Please read the following, as it may answer any questions as to unexpected behav
 
 NOTE:
 1. Currently only .mp3, .mp4, .ogg, .wav, .m4a and .flac files are imported. All other types are excluded. 
-1. Organization is force upon you! This means, that when you select your base directory in which to import, only folders within the base directory are checked, not the files. In otherwords, you must subdivide your music into folders inside the base directory.
-1. Songs added by playlist-importer will be excluded from being added again by the import function. This means, songs names should be unique! Make sure to avoid duplicate names across folders.
-1. Nested folders will result in unsuccessful importations. This will be addressed in future builds
-1. For general efficiency questions, refer to the "Efficiency" section below. 
-1. Spaces in folder names should no longer cause issues. Please contact me if they cause trouble.
+2. Organization is force upon you! This means, that when you select your base directory in which to import, only folders within the base directory are checked, not the files. In otherwords, you must subdivide your music into folders inside the base directory.
+3. Songs added by playlist-importer will be excluded from being added again by the import function. This means, songs names should be unique! Make sure to avoid duplicate names across folders.
+4. Nested folders will result in unsuccessful importations. This will be addressed in future builds
+5. For general efficiency questions, refer to the "Efficiency" section below. 
+6. Spaces in folder names should no longer cause issues. Please contact me if they cause trouble.
 
 ### Usage
 
