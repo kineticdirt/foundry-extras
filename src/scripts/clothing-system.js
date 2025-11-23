@@ -105,9 +105,21 @@ export class ClothingSystem extends FormApplication {
 
 		// Add button to Token HUD
 		Hooks.on('renderTokenHUD', (app, html, data) => {
+			console.log("ClothingSystem | renderTokenHUD hook fired");
 			const token = app.object; // This is the Token placeable
 			const actor = token.actor;
-			if (!actor || (!game.user.isGM && !actor.isOwner)) return;
+
+			if (!actor) {
+				console.log("ClothingSystem | No actor found for token");
+				return;
+			}
+
+			if (!game.user.isGM && !actor.isOwner) {
+				console.log("ClothingSystem | User is not owner/GM");
+				return;
+			}
+
+			console.log("ClothingSystem | Adding button to HUD");
 
 			const button = $(`
 				<div class="control-icon clothing-system" title="Clothing (Token)">
