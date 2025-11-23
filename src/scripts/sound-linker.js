@@ -121,14 +121,15 @@ export class SoundLinker {
 				select.append(option);
 			});
 
-			const target = html.find('input[name="path"]').closest('.form-group');
+			const $html = $(html);
+			const target = $html.find('input[name="path"]').closest('.form-group');
 			if (target.length) {
 				console.log("SoundLinker | Injecting playlist selector");
 				target.before(playlistSelect);
 			} else {
 				console.warn("SoundLinker | Could not find input[name='path'] to inject selector");
 				// Fallback: try appending to the end of the form
-				html.find('form').append(playlistSelect);
+				$html.find('form').append(playlistSelect);
 			}
 
 			select.on('change', async (ev) => {
@@ -137,7 +138,7 @@ export class SoundLinker {
 					const playlist = game.playlists?.get(playlistId);
 					if (playlist && playlist.sounds.size > 0) {
 						const firstSound = playlist.sounds.contents[0];
-						html.find('input[name="path"]').val(firstSound.path);
+						$html.find('input[name="path"]').val(firstSound.path);
 						await app.object.setFlag(CONSTANTS.MODULE_NAME, 'playlistId', playlistId);
 						await app.object.setFlag(CONSTANTS.MODULE_NAME, 'playlistMode', true);
 					}
