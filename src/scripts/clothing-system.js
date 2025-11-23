@@ -1,9 +1,11 @@
 import CONSTANTS from '../module/constants.js';
 
 export class ClothingSystem extends FormApplication {
-	constructor(actor, options) {
-		super(actor, options);
-		this.actor = actor;
+	constructor(object, options) {
+		super(object, options);
+		this.document = object.document || object; // Handle Token (placeable) vs TokenDocument vs Actor
+		// If it's a Token, we get the actor from it. If it's an Actor, it is the actor.
+		this.actor = this.document.actor || this.document;
 	}
 
 	static get defaultOptions() {
@@ -19,7 +21,8 @@ export class ClothingSystem extends FormApplication {
 	}
 
 	getData() {
-		const clothingData = this.actor.getFlag(CONSTANTS.MODULE_NAME, 'clothing') || {};
+		// Read flags from the specific document (Token or Actor)
+		const clothingData = this.document.getFlag(CONSTANTS.MODULE_NAME, 'clothing') || {};
 		const slots = {
 			head: { label: 'Headwear', item: null },
 			necklace: { label: 'Necklace', item: null },
@@ -38,7 +41,8 @@ export class ClothingSystem extends FormApplication {
 		}
 
 		return {
-			slots: slots
+			slots: slots,
+			isToken: this.document instanceof TokenDocument
 		};
 	}
 
@@ -68,7 +72,8 @@ export class ClothingSystem extends FormApplication {
 			uuid: ownedItem.uuid
 		};
 
-		await this.actor.setFlag(CONSTANTS.MODULE_NAME, `clothing.${slotKey}`, itemData);
+		// Save flag to the specific document (Token or Actor)
+		await this.document.setFlag(CONSTANTS.MODULE_NAME, `clothing.${slotKey}`, itemData);
 		this.render(true);
 	}
 
@@ -79,7 +84,7 @@ export class ClothingSystem extends FormApplication {
 
 	async _onRemoveItem(event) {
 		const slotKey = event.currentTarget.closest('.clothing-slot').dataset.slot;
-		await this.actor.unsetFlag(CONSTANTS.MODULE_NAME, `clothing.${slotKey}`);
+		await this.document.unsetFlag(CONSTANTS.MODULE_NAME, `clothing.${slotKey}`);
 		this.render(true);
 	}
 
@@ -100,17 +105,19 @@ export class ClothingSystem extends FormApplication {
 
 		// Add button to Token HUD
 		Hooks.on('renderTokenHUD', (app, html, data) => {
-			const actor = app.object.actor;
+			const token = app.object; // This is the Token placeable
+			const actor = token.actor;
 			if (!actor || (!game.user.isGM && !actor.isOwner)) return;
 
 			const button = $(`
-				<div class="control-icon clothing-system" title="Clothing">
+				<div class="control-icon clothing-system" title="Clothing (Token)">
 					<img src="modules/${CONSTANTS.MODULE_NAME}/icons/tshirt.png" width="36" height="36" style="border:none; filter: invert(1);">
 				</div>
 			`);
 
 			button.click(() => {
-				new ClothingSystem(actor).render(true);
+				// Pass the TokenDocument to allow token-specific storage
+				new ClothingSystem(token.document).render(true);
 			});
 
 			// Add to left column as requested
