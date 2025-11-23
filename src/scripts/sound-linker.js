@@ -118,9 +118,6 @@ export class SoundLinker {
 					if (playlist && playlist.sounds.size > 0) {
 						const firstSound = playlist.sounds.contents[0];
 						html.find('input[name="path"]').val(firstSound.path);
-						// Don't overwrite name if it's already set, or do?
-						// html.find('input[name="name"]').val(playlist.name);
-
 						await app.object.setFlag(CONSTANTS.MODULE_NAME, 'playlistId', playlistId);
 						await app.object.setFlag(CONSTANTS.MODULE_NAME, 'playlistMode', true);
 					}
@@ -135,7 +132,7 @@ export class SoundLinker {
 	static hookCanvasDrop() {
 		Hooks.on('canvasDrop', async (canvas, data) => {
 			try {
-				const dropData = JSON.parse(data.dataTransfer.getData('text/plain'));
+				const dropData = data;
 				if (dropData.type === 'Playlist' && dropData.playlistId) {
 					const playlist = game.playlists?.get(dropData.playlistId);
 					if (!playlist || !playlist.sounds || playlist.sounds.size === 0) {
@@ -150,7 +147,7 @@ export class SoundLinker {
 						t: 'l',
 						x: coords.x,
 						y: coords.y,
-						radius: 20, // Default radius
+						radius: 20,
 						path: firstSound.path,
 						volume: firstSound.volume || 0.5,
 						easing: true,
@@ -169,7 +166,7 @@ export class SoundLinker {
 					return false;
 				}
 			} catch (error) {
-				// Ignore errors for non-playlist drops
+				// Ignore errors
 			}
 			return true;
 		});

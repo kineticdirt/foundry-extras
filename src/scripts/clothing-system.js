@@ -105,7 +105,7 @@ export class ClothingSystem extends FormApplication {
 
 			const button = $(`
 				<div class="control-icon clothing-system" title="Clothing">
-					<i class="fas fa-tshirt"></i>
+					<img src="modules/${CONSTANTS.MODULE_NAME}/icons/tshirt.png" width="36" height="36" style="border:none; filter: invert(1);">
 				</div>
 			`);
 
