@@ -1,18 +1,97 @@
-<form class="clothing-sheet flexcol">
-	<div class="clothing-slots grid grid-2col">
+<form class="{{cssClass}}" autocomplete="off">
+	<div class="clothing-list">
 		{{#each slots as |slot key|}}
-		<div class="clothing-slot" data-slot="{{key}}">
-			<label>{{slot.label}}</label>
-			<div class="slot-content drop-zone {{#if slot.item}}filled{{/if}}">
+		<div class="clothing-slot item" data-slot="{{key}}">
+			<div class="item-image"
+				style="background-image: url('{{#if slot.item.img}}{{slot.item.img}}{{else}}icons/svg/item-bag.svg{{/if}}')">
+			</div>
+			<div class="item-name">
+				<h4>{{slot.label}}</h4>
 				{{#if slot.item}}
-				<img src="{{slot.item.img}}" title="{{slot.item.name}}" width="36" height="36" />
-				<span class="item-name">{{slot.item.name}}</span>
-				<a class="item-control item-delete" title="Remove Item"><i class="fas fa-trash"></i></a>
+				<span class="item-title">{{slot.item.name}}</span>
 				{{else}}
-				<span class="placeholder">{{localize "playlist_import.Clothing.Empty"}}</span>
+				<span class="item-empty">{{localize "playlist_import.Clothing.Empty"}}</span>
 				{{/if}}
 			</div>
+			{{#if slot.item}}
+			<div class="item-controls">
+				<a class="item-control item-delete" title="Remove Item"><i class="fas fa-trash"></i></a>
+			</div>
+			{{/if}}
 		</div>
 		{{/each}}
 	</div>
 </form>
+
+<style>
+	.clothing-list {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		padding: 5px;
+	}
+
+	.clothing-slot {
+		display: flex;
+		align-items: center;
+		background: rgba(0, 0, 0, 0.2);
+		border: 1px solid #7a7971;
+		border-radius: 3px;
+		padding: 5px;
+		height: 48px;
+	}
+
+	.clothing-slot .item-image {
+		flex: 0 0 32px;
+		height: 32px;
+		width: 32px;
+		background-size: cover;
+		background-position: center;
+		border: 1px solid #000;
+		border-radius: 2px;
+		margin-right: 10px;
+	}
+
+	.clothing-slot .item-name {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	.clothing-slot .item-name h4 {
+		margin: 0;
+		font-size: 0.8em;
+		color: #9f9275;
+		text-transform: uppercase;
+		line-height: 1;
+	}
+
+	.clothing-slot .item-name .item-title {
+		font-weight: bold;
+		font-size: 1.1em;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.clothing-slot .item-name .item-empty {
+		font-style: italic;
+		color: #7a7971;
+	}
+
+	.clothing-slot .item-controls {
+		flex: 0 0 24px;
+		text-align: center;
+	}
+
+	.clothing-slot .item-controls a {
+		color: #7a7971;
+	}
+
+	.clothing-slot .item-controls a:hover {
+		color: #ff0000;
+		text-shadow: 0 0 2px red;
+	}
+</style>
