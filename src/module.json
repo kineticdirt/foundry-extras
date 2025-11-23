@@ -3,7 +3,7 @@
 	"name": "foundry-extra-lewd",
 	"title": "Foundry Extras",
 	"description": "A comprehensive module adding Playlist Importing, Sound Linking, Compendium Building, Clothing System, and PDF Sync.",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"author": "KineticDirt",
 	"type": "module",
 	"socket": true,

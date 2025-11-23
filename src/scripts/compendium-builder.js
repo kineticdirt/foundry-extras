@@ -92,7 +92,7 @@ export class CompendiumBuilder extends FormApplication {
 			button.click(() => {
 				new CompendiumBuilder().render(true);
 			});
-			html.find('.directory-footer').append(button);
+			$(html).find('.directory-footer').append(button);
 		});
 	}
 }

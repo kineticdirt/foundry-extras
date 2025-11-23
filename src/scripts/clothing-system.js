@@ -133,7 +133,7 @@ export class ClothingSystem extends FormApplication {
 			});
 
 			// Add to left column as requested
-			html.find('.col.left').append(button);
+			$(html).find('.col.left').append(button);
 		});
 	}
 }
