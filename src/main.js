@@ -2,12 +2,14 @@ import CONSTANTS from './module/constants.js';
 import { CompendiumBuilder } from './scripts/compendium-builder.js';
 import { ClothingSystem } from './scripts/clothing-system.js';
 import { SoundLinker } from './scripts/sound-linker.js';
+import { PDFConverter } from './scripts/pdf-converter.js';
 
 class PlaylistImporterInitializer {
 	static initialize() {
 		SoundLinker.initialize();
 		CompendiumBuilder.initialize();
 		ClothingSystem.initialize();
+		PDFConverter.initialize();
 
 		Hooks.on('renderPlaylistDirectory', (app, html, data) => {
 			html.find('.directory-footer')[0].style.display = 'inherit';
