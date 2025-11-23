@@ -11,32 +11,7 @@ class PlaylistImporterInitializer {
 		ClothingSystem.initialize();
 		PDFConverter.initialize();
 
-		Hooks.on('renderPlaylistDirectory', (app, html, data) => {
-			const $html = $(html);
-			$html.find('.directory-footer')[0].style.display = 'inherit';
-			const importPlaylistString = game.i18n.localize(`${CONSTANTS.MODULE_NAME}.ImportButton`);
-			const importButton = $(`<button  style="width: 50%;">${importPlaylistString}</button>`);
-			if (game.user?.isGM || game.user?.can('SETTINGS_MODIFY')) {
-				$html.find('.directory-footer').append(importButton);
-				importButton.on('click', (ev) => {
-					PLIMP.playlistImporter.playlistDirectoryInterface();
-				});
-			}
-			const deleteAllPlaylistString = game.i18n.localize(`${CONSTANTS.MODULE_NAME}.DeleteAllButton`);
-			const deleteAllButton = $(`<button  style="width: 50%;">${deleteAllPlaylistString}</button>`);
-			if (game.user?.isGM || game.user?.can('SETTINGS_MODIFY')) {
-				$html.find('.directory-footer').append(deleteAllButton);
-				deleteAllButton.on('click', async (ev) => {
-					const playlists = game.playlists?.contents;
-					for (const playlist of playlists) {
-						const playlistHasFlag = playlist.getFlag(CONSTANTS.MODULE_NAME, 'isPlaylistImported');
-						if (playlistHasFlag && playlistHasFlag == true) {
-							await playlist.delete();
-						}
-					}
-				});
-			}
-		});
+
 	}
 
 	static _removeSound(playlistName, soundNames) {
