@@ -218,46 +218,18 @@ export class ClothingPanel extends Application {
 			return;
 		}
 
-		// Minimize/Maximize Toggle - Use multiple methods to ensure it works
+		// Minimize/Maximize Toggle - Use ONLY ONE method to avoid double-firing
 		const minimizeBtn = root.querySelector('.panel-minimize-btn');
 		console.log('ClothingPanel: Found minimize button:', minimizeBtn);
 		
 		if (minimizeBtn) {
-			// Method 1: Direct onclick
-			minimizeBtn.onclick = (ev) => {
-				ev.stopPropagation();
-				ev.preventDefault();
-				console.log('ClothingPanel: Minimize button clicked (onclick)');
-				this.toggleMinimize();
-			};
-			
-			// Method 2: addEventListener
+			// Use addEventListener (more modern and reliable)
 			minimizeBtn.addEventListener('click', (ev) => {
 				ev.stopPropagation();
 				ev.preventDefault();
-				console.log('ClothingPanel: Minimize button clicked (addEventListener)');
+				console.log('ClothingPanel: Minimize button clicked');
 				this.toggleMinimize();
-			});
-			
-			// Method 3: Listen on icon
-			const icon = minimizeBtn.querySelector('i');
-			if (icon) {
-				icon.onclick = (ev) => {
-					ev.stopPropagation();
-					ev.preventDefault();
-					console.log('ClothingPanel: Minimize icon clicked');
-					this.toggleMinimize();
-				};
-			}
-			
-			// Test: Add visual feedback on mousedown
-			minimizeBtn.addEventListener('mousedown', () => {
-				console.log('ClothingPanel: Button mousedown detected');
-				minimizeBtn.style.backgroundColor = 'red';
-				setTimeout(() => {
-					minimizeBtn.style.backgroundColor = '';
-				}, 200);
-			});
+			}, { once: false });
 		} else {
 			console.error('ClothingPanel: Minimize button NOT found in root!');
 			console.log('ClothingPanel: Root HTML:', root.innerHTML);
@@ -306,7 +278,8 @@ export class ClothingPanel extends Application {
 		// V13: this.element IS the panel element directly (no window-app wrapper)
 		const panelElement = (this.element instanceof HTMLElement) ? this.element : (this.element?.[0] || this.element);
 		
-		console.log('ClothingPanel: toggleMinimize called, panelElement:', panelElement);
+		console.log('ClothingPanel: toggleMinimize - isMinimized:', isMinimized, '→ newState:', newState);
+		console.log('ClothingPanel: panelElement before:', panelElement?.className, panelElement?.style.maxHeight);
 		
 		if (panelElement) {
 			const panelContent = panelElement.querySelector('.panel-content');
@@ -319,57 +292,50 @@ export class ClothingPanel extends Application {
 				// MINIMIZE: Collapse from bottom to top
 				panelElement.classList.add('minimized');
 				
-				// Use max-height transition for smooth collapse
 				if (panelContent) {
 					panelContent.style.maxHeight = '0';
 					panelContent.style.opacity = '0';
 					panelContent.style.overflow = 'hidden';
+					panelContent.style.display = 'none';
 				}
-				if (slotsContainer) {
-					slotsContainer.style.display = 'none';
-				}
-				if (silhouetteIcon) {
-					silhouetteIcon.style.display = 'none';
-				}
+				if (slotsContainer) slotsContainer.style.display = 'none';
+				if (silhouetteIcon) silhouetteIcon.style.display = 'none';
 				
-				panelElement.style.maxHeight = '70px'; // Header + button
+				panelElement.style.maxHeight = '70px';
 				
-				// Button stays visible, just change icon
 				if (minimizeIcon) minimizeIcon.className = 'fas fa-chevron-down';
 				
-				console.log('ClothingPanel: Minimized');
+				console.log('ClothingPanel: MINIMIZED - class added, maxHeight set to 70px');
 			} else {
 				// MAXIMIZE: Expand from top to bottom
 				panelElement.classList.remove('minimized');
 				
-				// Restore height with transition
 				if (panelContent) {
 					panelContent.style.maxHeight = '';
-					panelContent.style.opacity = '1';
+					panelContent.style.opacity = '';
 					panelContent.style.overflow = '';
+					panelContent.style.display = '';
 				}
-				if (slotsContainer) {
-					slotsContainer.style.display = '';
-				}
-				if (silhouetteIcon) {
-					silhouetteIcon.style.display = '';
-				}
+				if (slotsContainer) slotsContainer.style.display = '';
+				if (silhouetteIcon) silhouetteIcon.style.display = '';
 				
 				panelElement.style.maxHeight = '';
 				
-				// Change icon back
 				if (minimizeIcon) minimizeIcon.className = 'fas fa-chevron-up';
 				
-				console.log('ClothingPanel: Maximized');
+				console.log('ClothingPanel: MAXIMIZED - class removed, maxHeight cleared');
 			}
 			
-			// Re-apply positioning (same position, just different height)
+			console.log('ClothingPanel: panelElement after:', panelElement.className, panelElement.style.maxHeight);
+			
+			// Save state FIRST
+			game.settings.set(CONSTANTS.MODULE_NAME, 'panelMinimized', newState);
+			
+			// Re-apply positioning after state change
 			this._applyPositioning(panelElement);
 		} else {
 			console.error('ClothingPanel: toggleMinimize - panelElement not found! this.element:', this.element);
 		}
-		
-		game.settings.set(CONSTANTS.MODULE_NAME, 'panelMinimized', newState);
 	}
 
 	/**
