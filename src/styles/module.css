@@ -36,27 +36,127 @@
 	font-size: 0.9em;
 }
 
+/* Hide Foundry Application window frame for Clothing HUD */
+#clothing-hud.window-app .window-header,
+.clothing-hud-app.window-app .window-header,
+.window-app.clothing-hud-window .window-header,
+.window-app[data-app-id="clothing-hud"] .window-header {
+	display: none !important;
+	visibility: hidden !important;
+	height: 0 !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	overflow: hidden !important;
+}
+
+#clothing-hud.window-app,
+.clothing-hud-app.window-app,
+.window-app.clothing-hud-window,
+.window-app[data-app-id="clothing-hud"] {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+}
+
+#clothing-hud.window-app .window-content,
+.clothing-hud-app.window-app .window-content,
+.window-app.clothing-hud-window .window-content,
+.window-app[data-app-id="clothing-hud"] .window-content {
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	overflow: visible !important;
+}
+
 /* Clothing HUD - Positioned on RIGHT side */
-#clothing-hud,
-.clothing-hud-app,
-.clothing-hud {
+/* Target the window-app wrapper */
+.window-app[data-app-id="clothing-hud"],
+.window-app.clothing-hud-window {
 	position: fixed !important;
 	top: 50% !important;
 	right: 10px !important;
 	left: auto !important;
 	transform: translateY(-50%) !important;
+	z-index: 50 !important;
+}
+
+/* Target the actual clothing-hud content */
+#clothing-hud,
+.clothing-hud-app .clothing-hud,
+.window-content .clothing-hud,
+.clothing-hud {
 	width: 200px;
 	max-height: 90vh;
 	background: rgba(0, 0, 0, 0.85);
 	border: 2px solid #444;
 	border-radius: 8px;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+	overflow: hidden;
+}
+
+/* HUD Header */
+.hud-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 8px;
+	background: rgba(255, 255, 255, 0.1);
+	border-bottom: 1px solid #444;
+	cursor: move;
+}
+
+.hud-title {
+	font-size: 12px;
+	font-weight: bold;
+	color: #ccc;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.hud-minimize-btn {
+	background: transparent;
+	border: none;
+	color: #ccc;
+	cursor: pointer;
+	padding: 2px 4px;
+	border-radius: 3px;
+	transition: all 0.2s ease;
+	font-size: 10px;
+}
+
+.hud-minimize-btn:hover {
+	background: rgba(255, 255, 255, 0.1);
+	color: #ff6400;
+}
+
+/* HUD Content */
+.hud-content {
 	padding: 8px;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	z-index: 50;
-	box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 	overflow-y: auto;
+	max-height: calc(90vh - 40px);
+}
+
+/* Minimized State */
+.clothing-hud.minimized {
+	width: auto;
+	min-width: 120px;
+}
+
+.clothing-hud.minimized .hud-content {
+	display: none;
+}
+
+.clothing-hud.minimized .hud-header {
+	border-bottom: none;
 }
 
 
@@ -176,4 +276,11 @@
 
 .clothing-slot:hover .remove-item {
 	display: flex;
+}
+
+/* Drag and Drop Visual Feedback */
+.clothing-slot.drag-over {
+	border-color: #ff6400 !important;
+	background: rgba(255, 100, 0, 0.3) !important;
+	transform: scale(1.05);
 }

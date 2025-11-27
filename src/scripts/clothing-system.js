@@ -61,45 +61,6 @@ export class ClothingSystem extends FormApplication {
 			});
 		});
 
-		// Add HUD to Token HUD
-		Hooks.on('renderTokenHUD', async (app, html, data) => {
-			const token = app.object; // This is the Token placeable
-			const actor = token.actor;
-
-			if (!actor) return;
-			if (!game.user.isGM && !actor.isOwner) return;
-
-			// Prepare data
-			const sections = ClothingManager.getClothingData(token.document);
-			const template = `modules/${CONSTANTS.MODULE_NAME}/templates/clothing-hud.hbs`;
-			const rendered = await renderTemplate(template, { sections });
-
-			// Append to HUD
-			const $html = $(html);
-			const hudPanel = $(rendered);
-			$html.find('.col.left').before(hudPanel);
-
-			// Add Listeners to the HUD Panel
-			hudPanel.find('.clothing-slot').each((i, el) => {
-				// Drag Drop
-				el.addEventListener('drop', async (ev) => {
-					ev.preventDefault();
-					const data = TextEditor.getDragEventData(ev);
-					const slotKey = el.dataset.slot;
-					await ClothingManager.handleDrop(token.document, actor, slotKey, data);
-					app.render(); // Re-render HUD to show changes
-				});
-
-				el.addEventListener('dragover', (ev) => ev.preventDefault());
-
-				// Remove Item
-				$(el).find('.remove-item').click(async (ev) => {
-					ev.stopPropagation();
-					const slotKey = el.dataset.slot;
-					await ClothingManager.removeItem(token.document, slotKey);
-					app.render();
-				});
-			});
-		});
+		// Token HUD integration removed - ClothingHUD now renders independently on the right side
 	}
 }

@@ -6,6 +6,7 @@ export class ClothingHUD extends Application {
 		super();
 		this._token = null;
 		this._actor = null;
+		this._minimized = false;
 	}
 
 	static get defaultOptions() {
@@ -21,9 +22,10 @@ export class ClothingHUD extends Application {
 	}
 
 	async getData() {
-		if (!this._token) return { sections: {} };
+		if (!this._token) return { sections: {}, minimized: this._minimized };
 		return {
-			sections: ClothingManager.getClothingData(this._token.document)
+			sections: ClothingManager.getClothingData(this._token.document),
+			minimized: this._minimized
 		};
 	}
 
@@ -58,14 +60,44 @@ export class ClothingHUD extends Application {
 		const slotElement = event.target.closest('.clothing-slot');
 		if (!slotElement) return;
 
+		// Remove drag-over class
+		slotElement.classList.remove('drag-over');
+
 		const slotKey = slotElement.dataset.slot;
 
 		await ClothingManager.handleDrop(this._token.document, this._actor, slotKey, data);
 		this.render();
 	}
 
+	_onDragOver(event) {
+		const slotElement = event.target.closest('.clothing-slot');
+		if (slotElement) {
+			event.preventDefault();
+			slotElement.classList.add('drag-over');
+		}
+	}
+
+	_onDragLeave(event) {
+		const slotElement = event.target.closest('.clothing-slot');
+		if (slotElement) {
+			slotElement.classList.remove('drag-over');
+		}
+	}
+
+	_getHeaderButtons() {
+		// Return empty array to remove Foundry's default window header buttons
+		return [];
+	}
+
 	activateListeners(html) {
 		super.activateListeners(html);
+
+		// Minimize/Expand Toggle
+		html.find('.hud-minimize-btn').click((ev) => {
+			ev.stopPropagation();
+			ev.preventDefault();
+			this.toggleMinimize();
+		});
 
 		// Remove Item
 		html.find('.remove-item').click(async (ev) => {
@@ -78,62 +110,155 @@ export class ClothingHUD extends Application {
 			this.render();
 		});
 
-		// Make HUD draggable (simple implementation)
-		const hud = html[0];
-		let isDragging = false;
-		let startX, startY, initialLeft, initialTop;
-
-		hud.addEventListener('mousedown', (e) => {
-			if (e.target.closest('.clothing-slot')) return; // Don't drag if clicking a slot
-			isDragging = true;
-			startX = e.clientX;
-			startY = e.clientY;
-			const rect = hud.getBoundingClientRect();
-			initialLeft = rect.left;
-			initialTop = rect.top;
-			hud.style.cursor = 'grabbing';
+		// Drag and Drop handlers for visual feedback
+		html.find('.clothing-slot').on('dragover', (ev) => {
+			ev.preventDefault();
+			ev.currentTarget.classList.add('drag-over');
 		});
 
-		window.addEventListener('mousemove', (e) => {
-			if (!isDragging) return;
-			const dx = e.clientX - startX;
-			const dy = e.clientY - startY;
-			hud.style.left = `${initialLeft + dx}px`;
-			hud.style.top = `${initialTop + dy}px`;
-			hud.style.bottom = 'auto'; // Override CSS bottom
-			hud.style.right = 'auto';
+		html.find('.clothing-slot').on('dragleave', (ev) => {
+			ev.currentTarget.classList.remove('drag-over');
 		});
 
-		window.addEventListener('mouseup', async (e) => {
-			if (!isDragging) return;
-			isDragging = false;
-			hud.style.cursor = 'default';
-
-			// Persist Position
-			const position = {
-				left: hud.style.left,
-				top: hud.style.top
-			};
-			await game.settings.set(CONSTANTS.MODULE_NAME, 'hudPosition', position);
+		html.find('.clothing-slot').on('drop', (ev) => {
+			ev.currentTarget.classList.remove('drag-over');
 		});
+
+		// Make HUD draggable via header (simple implementation)
+		const hudHeader = html.find('.hud-header')[0];
+		if (hudHeader) {
+			let isDragging = false;
+			let startX, startY, initialLeft, initialTop;
+			let windowApp = null;
+
+			hudHeader.addEventListener('mousedown', (e) => {
+				if (e.target.closest('.hud-minimize-btn')) return; // Don't drag if clicking minimize button
+				isDragging = true;
+				startX = e.clientX;
+				startY = e.clientY;
+				
+				// Find the window-app wrapper
+				windowApp = $(hudHeader).closest('.window-app')[0] || $(hudHeader).closest('#clothing-hud.window-app')[0];
+				if (!windowApp) {
+					windowApp = $(hudHeader).parents('.window-app')[0];
+				}
+				
+				if (windowApp) {
+					const rect = windowApp.getBoundingClientRect();
+					initialLeft = rect.left;
+					initialTop = rect.top;
+					hudHeader.style.cursor = 'grabbing';
+				}
+			});
+
+			window.addEventListener('mousemove', (e) => {
+				if (!isDragging || !windowApp) return;
+				const dx = e.clientX - startX;
+				const dy = e.clientY - startY;
+				$(windowApp).css({
+					left: `${initialLeft + dx}px`,
+					top: `${initialTop + dy}px`,
+					right: 'auto',
+					bottom: 'auto',
+					transform: 'none'
+				});
+			});
+
+			window.addEventListener('mouseup', async (e) => {
+				if (!isDragging) return;
+				isDragging = false;
+				hudHeader.style.cursor = 'default';
+
+				if (windowApp) {
+					// Persist Position
+					const rect = windowApp.getBoundingClientRect();
+					const position = {
+						left: `${rect.left}px`,
+						top: `${rect.top}px`
+					};
+					await game.settings.set(CONSTANTS.MODULE_NAME, 'hudPosition', position);
+				}
+			});
+		}
+	}
+
+	toggleMinimize() {
+		this._minimized = !this._minimized;
+		this.render();
+		// Persist minimize state
+		game.settings.set(CONSTANTS.MODULE_NAME, 'hudMinimized', this._minimized);
 	}
 
 	// Override render to append to body but keep position fixed via CSS
 	async _render(force, options) {
 		await super._render(force, options);
-		// Ensure it's visible
+		
+		// Restore minimize state
+		const savedMinimized = game.settings.get(CONSTANTS.MODULE_NAME, 'hudMinimized');
+		if (savedMinimized !== undefined) {
+			this._minimized = savedMinimized;
+		}
+		
 		if (this.element) {
-			this.element.css({ display: 'flex' });
+			// Hide Foundry's window frame - target the window-app wrapper
+			const windowApp = this.element.closest('.window-app');
+			if (windowApp) {
+				windowApp.classList.add('clothing-hud-window');
+				windowApp.setAttribute('data-app-id', 'clothing-hud');
+				
+				// Hide header completely
+				const windowHeader = windowApp.querySelector('.window-header');
+				if (windowHeader) {
+					windowHeader.style.cssText = 'display: none !important; visibility: hidden !important; height: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden !important;';
+				}
+				
+				// Style the window-app itself
+				windowApp.style.cssText = 'background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important;';
+				
+				// Style window-content
+				const windowContent = windowApp.querySelector('.window-content');
+				if (windowContent) {
+					windowContent.style.cssText = 'padding: 0 !important; margin: 0 !important; border: none !important; background: transparent !important; overflow: visible !important;';
+				}
+			}
 
-			// Restore Position
-			const position = game.settings.get(CONSTANTS.MODULE_NAME, 'hudPosition');
-			if (position && position.left && position.top) {
-				this.element.css({
-					left: position.left,
-					top: position.top,
-					bottom: 'auto',
-					right: 'auto'
-				});
+			// Find the actual clothing-hud div inside window-content
+			const hudDiv = this.element.find('.clothing-hud').length ? this.element.find('.clothing-hud') : this.element;
+			
+			// Apply minimize state
+			if (this._minimized) {
+				hudDiv.addClass('minimized');
+			} else {
+				hudDiv.removeClass('minimized');
+			}
+
+			// Ensure it's visible and positioned correctly
+			hudDiv.css({ display: 'flex' });
+
+			// Position the window-app wrapper, not the inner element
+			if (windowApp) {
+				// Restore Position (only if not using default right-side positioning)
+				const position = game.settings.get(CONSTANTS.MODULE_NAME, 'hudPosition');
+				if (position && position.left && position.top) {
+					$(windowApp).css({
+						position: 'fixed',
+						left: position.left,
+						top: position.top,
+						bottom: 'auto',
+						right: 'auto',
+						transform: 'none'
+					});
+				} else {
+					// Default to right side
+					$(windowApp).css({
+						position: 'fixed',
+						left: 'auto',
+						right: '10px',
+						top: '50%',
+						bottom: 'auto',
+						transform: 'translateY(-50%)'
+					});
+				}
 			}
 		}
 	}
