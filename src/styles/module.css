@@ -426,8 +426,7 @@
 }
 
 /* Keep button visible when minimized */
-.clothing-panel.minimized .panel-minimize-btn,
-.window-app.panel-minimized .clothing-panel .panel-minimize-btn {
+.clothing-panel.minimized .panel-minimize-btn {
 	display: flex !important;
 	visibility: visible !important;
 }
@@ -446,8 +445,7 @@
 }
 
 /* Minimized State - Collapse from bottom to top */
-.clothing-panel.minimized,
-.window-app.panel-minimized .clothing-panel {
+.clothing-panel.minimized {
 	min-height: 0 !important;
 	height: auto !important;
 	max-height: 70px !important; /* Header + button height */
@@ -455,8 +453,7 @@
 	transition: max-height 0.3s ease !important;
 }
 
-.clothing-panel.minimized .panel-content,
-.window-app.panel-minimized .clothing-panel .panel-content {
+.clothing-panel.minimized .panel-content {
 	max-height: 0 !important;
 	height: 0 !important;
 	min-height: 0 !important;
@@ -465,12 +462,6 @@
 	opacity: 0 !important;
 	overflow: hidden !important;
 	transition: max-height 0.3s ease, opacity 0.3s ease !important;
-}
-
-.window-app.panel-minimized {
-	height: auto !important;
-	max-height: 80px !important; /* Header + button + padding */
-	transition: max-height 0.3s ease !important;
 }
 
 /* Ensure panel-content expands smoothly */

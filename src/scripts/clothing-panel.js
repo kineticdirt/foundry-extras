@@ -303,10 +303,12 @@ export class ClothingPanel extends Application {
 		const isMinimized = game.settings.get(CONSTANTS.MODULE_NAME, 'panelMinimized') || false;
 		const newState = !isMinimized;
 		
-		const windowApp = document.querySelector('.window-app[data-app-id="clothing-panel"]');
-		const panelElement = windowApp?.querySelector('.clothing-panel');
+		// V13: this.element IS the panel element directly (no window-app wrapper)
+		const panelElement = (this.element instanceof HTMLElement) ? this.element : (this.element?.[0] || this.element);
 		
-		if (panelElement && windowApp) {
+		console.log('ClothingPanel: toggleMinimize called, panelElement:', panelElement);
+		
+		if (panelElement) {
 			const panelContent = panelElement.querySelector('.panel-content');
 			const slotsContainer = panelElement.querySelector('.slots-container');
 			const silhouetteIcon = panelElement.querySelector('.silhouette-icon');
@@ -316,7 +318,6 @@ export class ClothingPanel extends Application {
 			if (newState) {
 				// MINIMIZE: Collapse from bottom to top
 				panelElement.classList.add('minimized');
-				windowApp.classList.add('panel-minimized');
 				
 				// Use max-height transition for smooth collapse
 				if (panelContent) {
@@ -332,14 +333,14 @@ export class ClothingPanel extends Application {
 				}
 				
 				panelElement.style.maxHeight = '70px'; // Header + button
-				windowApp.style.maxHeight = '80px';
 				
 				// Button stays visible, just change icon
 				if (minimizeIcon) minimizeIcon.className = 'fas fa-chevron-down';
+				
+				console.log('ClothingPanel: Minimized');
 			} else {
 				// MAXIMIZE: Expand from top to bottom
 				panelElement.classList.remove('minimized');
-				windowApp.classList.remove('panel-minimized');
 				
 				// Restore height with transition
 				if (panelContent) {
@@ -355,16 +356,17 @@ export class ClothingPanel extends Application {
 				}
 				
 				panelElement.style.maxHeight = '';
-				windowApp.style.maxHeight = '';
 				
 				// Change icon back
 				if (minimizeIcon) minimizeIcon.className = 'fas fa-chevron-up';
+				
+				console.log('ClothingPanel: Maximized');
 			}
 			
 			// Re-apply positioning (same position, just different height)
-			this._applyPositioning(windowApp);
+			this._applyPositioning(panelElement);
 		} else {
-			console.warn('ClothingPanel: toggleMinimize - panelElement or windowApp not found');
+			console.error('ClothingPanel: toggleMinimize - panelElement not found! this.element:', this.element);
 		}
 		
 		game.settings.set(CONSTANTS.MODULE_NAME, 'panelMinimized', newState);
