@@ -283,10 +283,12 @@ export class ClothingPanel extends Application {
 			if (chatSidebar) {
 				const sidebarRect = chatSidebar.getBoundingClientRect();
 				const panelWidth = 76; // 60px width + 8px padding on each side
+				const gap = 10; // Gap between panel and sidebar
 				
-				// Calculate position: sidebar's left edge minus panel width minus gap
-				// Using 'right' positioning: distance from right edge of screen
-				const distanceFromRight = window.innerWidth - sidebarRect.left + 10; // 10px gap
+				// Position panel to the LEFT of the sidebar
+				// Panel's right edge should be at: sidebarRect.left - gap
+				// So 'right' CSS = window.innerWidth - (sidebarRect.left - gap)
+				const distanceFromRight = window.innerWidth - sidebarRect.left + gap;
 				
 				$windowApp.css({
 					position: 'fixed',
@@ -300,7 +302,7 @@ export class ClothingPanel extends Application {
 					opacity: '1'
 				});
 				
-				console.log('ClothingPanel: Positioned at', distanceFromRight, 'px from right edge, sidebar left at', sidebarRect.left);
+				console.log('ClothingPanel: Positioned', distanceFromRight, 'px from right edge (sidebar left:', sidebarRect.left, ', screen width:', window.innerWidth, ')');
 			} else {
 				// Fallback: position on right side, left of typical chat location
 				// Foundry chat sidebar is typically ~300px wide from right edge
