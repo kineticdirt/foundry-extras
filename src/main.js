@@ -1,6 +1,7 @@
 import CONSTANTS from './module/constants.js';
 import { CompendiumBuilder } from './scripts/compendium-builder.js';
 import { ClothingHUD } from './scripts/clothing-hud.js';
+import { ClothingPanel } from './scripts/clothing-panel.js';
 import { SoundLinker } from './scripts/sound-linker.js';
 import { PDFConverter } from './scripts/pdf-converter.js';
 import { ClothingSystem } from './scripts/clothing-system.js';
@@ -34,12 +35,12 @@ Hooks.once('ready', () => {
 	PLIMP.playlistImporter = new PlaylistImporter();
 
 	// ============================================
-	// CLOTHING HUD INITIALIZATION
+	// CLOTHING PANEL INITIALIZATION - Left-side panel near chat
 	// ============================================
-	// Create the HUD instance but DO NOT render it yet
+	// Create the panel instance but DO NOT render it yet
 	// It will only render when a token is selected via the bind() method
-	// This ensures it NEVER appears in Settings or other windows
-	ui.clothingHUD = new ClothingHUD();
+	// This ensures it NEVER appears when no token is selected
+	ui.clothingPanel = new ClothingPanel();
 	// DO NOT call render() here - it will render when token is selected
 
 	// ============================================
@@ -49,8 +50,8 @@ Hooks.once('ready', () => {
 	// It does NOT fire for Settings, Actor sheets, or other windows
 	Hooks.on('controlToken', (token, controlled) => {
 		if (controlled && token?.actor?.isOwner) {
-			// Token was selected - show the HUD on the right side
-			ui.clothingHUD.bind(token);
+			// Token was selected - show the panel on the left side
+			ui.clothingPanel.bind(token);
 		} else {
 			// Token was deselected - check if other tokens are still selected
 			const controlledTokens = canvas.tokens?.controlled || [];
@@ -58,14 +59,14 @@ Hooks.once('ready', () => {
 				const firstToken = controlledTokens.find(t => t.actor?.isOwner);
 				if (firstToken) {
 					// Another token is selected - bind to that one
-					ui.clothingHUD.bind(firstToken);
+					ui.clothingPanel.bind(firstToken);
 				} else {
-					// No owned tokens selected - hide HUD
-					ui.clothingHUD.bind(null);
+					// No owned tokens selected - hide panel
+					ui.clothingPanel.bind(null);
 				}
 			} else {
-				// No tokens selected - hide HUD
-				ui.clothingHUD.bind(null);
+				// No tokens selected - hide panel
+				ui.clothingPanel.bind(null);
 			}
 		}
 	});
@@ -74,16 +75,23 @@ Hooks.once('ready', () => {
 	// CANVAS READY HOOK - Check for already-selected tokens when canvas loads
 	// ============================================
 	// This only fires once when the canvas is ready
-	// It checks if tokens are already selected and shows HUD if so
+	// It checks if tokens are already selected and shows panel if so
 	Hooks.once('canvasReady', () => {
 		const controlledTokens = canvas.tokens?.controlled || [];
 		if (controlledTokens.length > 0) {
 			const firstToken = controlledTokens.find(t => t.actor?.isOwner);
 			if (firstToken) {
 				setTimeout(() => {
-					ui.clothingHUD.bind(firstToken);
+					ui.clothingPanel.bind(firstToken);
 				}, 500);
 			}
+		}
+	});
+
+	// Update panel when actor updates
+	Hooks.on('updateActor', (actor) => {
+		if (ui.clothingPanel?._actor === actor) {
+			ui.clothingPanel.render();
 		}
 	});
 
