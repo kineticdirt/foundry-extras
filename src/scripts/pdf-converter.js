@@ -1,6 +1,10 @@
 import CONSTANTS from '../module/constants.js';
 
 export class PDFConverter {
+	constructor(actor) {
+		this.actor = actor;
+	}
+
 	static initialize() {
 		Hooks.on('getActorSheetHeaderButtons', (sheet, buttons) => {
 			if (!game.user.isGM && !sheet.actor.isOwner) return;
@@ -15,6 +19,16 @@ export class PDFConverter {
 				}
 			});
 		});
+	}
+
+	/**
+	 * Map PDF form data to actor updates
+	 * @param {Object} formData - The form data from the PDF
+	 * @returns {Object} - Flat updates object for actor.update()
+	 */
+	static mapPDFData(formData) {
+		const flatUpdates = {};
+		
 		const set = (path, val) => {
 			if (val !== undefined && val !== null && val !== "") {
 				flatUpdates[path] = val;
@@ -81,5 +95,10 @@ export class PDFConverter {
 		}
 
 		return flatUpdates;
+	}
+
+	async syncDialog() {
+		// Placeholder for sync dialog - implement as needed
+		ui.notifications.info("PDF Sync feature - Coming soon");
 	}
 }
