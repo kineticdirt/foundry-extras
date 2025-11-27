@@ -438,9 +438,10 @@
 	position: relative !important;
 	padding: 0 !important;
 	margin: 0 !important;
-	flex: 1;
-	height: clamp(400px, 55vh, 550px) !important;
-	min-height: clamp(400px, 55vh, 550px) !important;
+	flex: 1 1 auto !important;
+	height: 100% !important;
+	min-height: 0 !important;
+	max-height: 100% !important;
 	overflow: hidden !important;
 }
 
@@ -472,7 +473,7 @@
 /* Silhouette Icon - On the RIGHT side, static position */
 .clothing-panel .silhouette-icon {
 	position: relative !important;
-	width: 30% !important;
+	width: 35% !important; /* Increased from 30% */
 	height: 100% !important;
 	display: flex !important;
 	align-items: stretch !important;
@@ -495,9 +496,10 @@
 	object-position: center center !important; /* Center the image */
 	display: block !important;
 	pointer-events: none !important;
+	transform: scale(1.1) !important; /* Slightly bigger */
 }
 
-/* Slots Container - On the LEFT 70% of space */
+/* Slots Container - On the LEFT 65% of space */
 .clothing-panel .slots-container {
 	position: relative !important;
 	display: flex !important;
@@ -505,7 +507,7 @@
 	gap: clamp(1px, 0.3vw, 4px) !important;
 	align-items: flex-start !important;
 	flex: 1 !important;
-	width: 70% !important;
+	width: 65% !important; /* Reduced from 70% to give silhouette more space */
 	height: 100% !important;
 	overflow-y: auto;
 	overflow-x: hidden;

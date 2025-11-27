@@ -480,7 +480,7 @@ export class ClothingPanel extends Application {
 		
 		// Calculate panel width and position
 		const marginX = 12;
-		const panelWidth = 380; // Default width
+		const panelWidth = 430; // Increased from 380 to 430 (50px wider)
 		
 		let panelLeft = 10; // Default fallback
 		
