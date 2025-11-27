@@ -161,7 +161,10 @@ export class ClothingPanel extends Application {
 		if (wasBound && !willBeBound) {
 			this._token = null;
 			this._actor = null;
-			this.close();
+			// Hide the panel
+			if (this.rendered) {
+				this.close();
+			}
 			return;
 		}
 
@@ -178,9 +181,12 @@ export class ClothingPanel extends Application {
 				this.render();
 			}
 		} else {
-			// No valid token
+			// No valid token - ensure panel is hidden
 			this._token = null;
 			this._actor = null;
+			if (this.rendered) {
+				this.close();
+			}
 		}
 	}
 
@@ -303,51 +309,59 @@ export class ClothingPanel extends Application {
 	}
 
 	/**
-	 * Apply positioning to an element
+	 * Apply positioning to an element - Pin to bottom chat input box
 	 */
 	_applyPositioning(element) {
-		// Position to the LEFT of the chat sidebar (right side of screen)
-		// Find the chat sidebar - Foundry uses #sidebar for the right sidebar
-		const chatSidebar = document.querySelector('#sidebar');
+		// Find the chat input box at the bottom
+		const chatInput = document.querySelector('#chat-message') || 
+						  document.querySelector('.chat-message') ||
+						  document.querySelector('#chat-form input[type="text"]') ||
+						  document.querySelector('#chat-form textarea') ||
+						  document.querySelector('input[placeholder*="message" i]') ||
+						  document.querySelector('textarea[placeholder*="message" i]');
 		
-		if (chatSidebar) {
-			const sidebarRect = chatSidebar.getBoundingClientRect();
+		if (chatInput) {
+			const inputRect = chatInput.getBoundingClientRect();
 			const panelWidth = 76;
 			const gap = 10;
-			const panelLeft = sidebarRect.left - panelWidth - gap;
+			
+			// Position to the LEFT of the chat input, pinned to bottom
+			// Calculate left position: input's left edge - panel width - gap
+			const panelLeft = inputRect.left - panelWidth - gap;
+			
+			// Calculate bottom position: distance from bottom of screen to top of input
+			const panelBottom = window.innerHeight - inputRect.top + gap;
 			
 			// Apply positioning DIRECTLY to element
 			element.style.position = 'fixed';
-			element.style.left = `${panelLeft}px`;
-			element.style.top = `${sidebarRect.top + 20}px`;
+			element.style.left = `${Math.max(10, panelLeft)}px`; // Ensure it doesn't go off-screen
+			element.style.bottom = `${panelBottom}px`;
+			element.style.top = 'auto';
 			element.style.right = 'auto';
-			element.style.bottom = 'auto';
+			element.style.transform = 'none';
 			element.style.zIndex = '100';
 			element.style.display = 'block';
 			element.style.visibility = 'visible';
 			element.style.opacity = '1';
 			
-			console.log('ClothingPanel: Positioned at left:', panelLeft, 'px');
+			console.log('ClothingPanel: Positioned at left:', panelLeft, 'px, bottom:', panelBottom, 'px');
 		} else {
-			// Fallback: position on right side, left of typical chat location
-			const screenWidth = window.innerWidth;
-			const chatWidth = 300;
+			// Fallback: position at bottom-left if chat input not found
 			const panelWidth = 76;
 			const gap = 10;
-			const panelLeft = screenWidth - chatWidth - panelWidth - gap;
 			
 			element.style.position = 'fixed';
-			element.style.left = `${panelLeft}px`;
-			element.style.top = '50%';
+			element.style.left = `${gap}px`;
+			element.style.bottom = `${100 + gap}px`; // Above typical chat input location
+			element.style.top = 'auto';
 			element.style.right = 'auto';
-			element.style.bottom = 'auto';
-			element.style.transform = 'translateY(-50%)';
+			element.style.transform = 'none';
 			element.style.zIndex = '100';
 			element.style.display = 'block';
 			element.style.visibility = 'visible';
 			element.style.opacity = '1';
 			
-			console.log('ClothingPanel: Using fallback positioning, left:', panelLeft);
+			console.log('ClothingPanel: Using fallback positioning (chat input not found)');
 		}
 	}
 }
