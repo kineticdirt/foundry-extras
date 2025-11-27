@@ -47,8 +47,13 @@ export class ClothingSystem extends FormApplication {
 	}
 
 	static initialize() {
-		// Add button to Actor Sheet header
+		// ============================================
+		// ACTOR SHEET BUTTON - Adds "Clothing" button to Actor Sheet header only
+		// ============================================
+		// This hook ONLY fires for Actor sheets, NOT for Settings or other windows
 		Hooks.on('getActorSheetHeaderButtons', (sheet, buttons) => {
+			// Safety check: Only add to Actor sheets, not Settings or other windows
+			if (!sheet || !sheet.actor || sheet.actor.documentName !== 'Actor') return;
 			if (!game.user.isGM && !sheet.actor.isOwner) return;
 
 			buttons.unshift({
@@ -61,6 +66,37 @@ export class ClothingSystem extends FormApplication {
 			});
 		});
 
-		// Token HUD integration removed - ClothingHUD now renders independently on the right side
+		// ============================================
+		// TOKEN HUD ICON - Adds T-shirt icon to Token HUD when right-clicking a token
+		// ============================================
+		// This adds an icon to the Token HUD that triggers the ClothingHUD on the right side
+		Hooks.on('renderTokenHUD', (app, html, data) => {
+			const token = app.object; // The Token placeable
+			const actor = token.actor;
+
+			// Only show if actor exists and user has permission
+			if (!actor || (!game.user.isGM && !actor.isOwner)) return;
+
+			// Create the icon button
+			const iconButton = $(`
+				<div class="control-icon clothing-hud-trigger" 
+					 data-token-id="${token.id}"
+					 title="Clothing System">
+					<i class="fas fa-tshirt"></i>
+				</div>
+			`);
+
+			// Add click handler to trigger the ClothingHUD
+			iconButton.on('click', (ev) => {
+				ev.stopPropagation();
+				// Bind the HUD to this token - this will show it on the right side
+				if (ui.clothingHUD) {
+					ui.clothingHUD.bind(token);
+				}
+			});
+
+			// Add to the left column of Token HUD
+			html.find('.col.left').append(iconButton);
+		});
 	}
 }
